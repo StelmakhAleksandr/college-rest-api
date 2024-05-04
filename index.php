@@ -19,19 +19,11 @@ $dbSettings = [
 $pdo = new PDO("mysql:host={$dbSettings['host']};dbname={$dbSettings['dbname']};charset=utf8", $dbSettings['user'], $dbSettings['pass']);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Тестовий маршрут
 $app->get('/', function ($request, $response, $args) {
     $response->getBody()->write("Hello, world!");
     return $response;
 });
 
-// $app->get('/students', function (Request $request, Response $response) use ($pdo) {
-//     $stmt = $pdo->query('SELECT * FROM students');
-//     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-//     $response->getBody()->write(json_encode($students));
-//     return $response->withHeader('Content-Type', 'application/json');
-// });
 
 $app->get('/students', function (Request $request, Response $response, array $args) use ($pdo) {
     $sql = "SELECT 
@@ -47,6 +39,26 @@ $app->get('/students', function (Request $request, Response $response, array $ar
             JOIN 
                 Groups ON Students.groupId = Groups.groupId";
                 
+    $stmt = $pdo->query($sql);
+    $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $response->getBody()->write(json_encode($students));
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+$app->get('/teachers', function (Request $request, Response $response, array $args) use ($pdo) {
+    $sql = "SELECT 
+                People.firstName,
+                People.lastName,
+                People.phoneNumber,
+                People.email,
+                Departments.departmentName
+            FROM 
+                Teachers
+            JOIN 
+                People ON Teachers.personId = People.personId
+            JOIN 
+                Departments ON Teachers.departmentId = Departments.departmentId";
     $stmt = $pdo->query($sql);
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
